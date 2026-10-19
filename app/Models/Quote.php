@@ -2,10 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $quote_request_id
+ * @property Carbon|null $valid_until
+ * @property string|null $notes
+ * @property-read QuoteRequest $quoteRequest
+ * @property-read Collection<int, QuoteItem> $items
+ */
 class Quote extends Model
 {
     protected $fillable = [
@@ -13,6 +23,9 @@ class Quote extends Model
         'notes',
     ];
 
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -20,11 +33,17 @@ class Quote extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<QuoteRequest, $this>
+     */
     public function quoteRequest(): BelongsTo
     {
         return $this->belongsTo(QuoteRequest::class);
     }
 
+    /**
+     * @return HasMany<QuoteItem, $this>
+     */
     public function items(): HasMany
     {
         return $this->hasMany(QuoteItem::class);
@@ -32,12 +51,12 @@ class Quote extends Model
 
     public function subtotal(): int
     {
-        return $this->items->sum(fn (QuoteItem $item) => $item->total());
+        return (int) $this->items->sum(fn (QuoteItem $item): int => $item->total());
     }
 
     public function vatAmount(): int
     {
-        return $this->items->sum(fn (QuoteItem $item) => $item->vatAmount());
+        return (int) $this->items->sum(fn (QuoteItem $item): int => $item->vatAmount());
     }
 
     public function total(): int

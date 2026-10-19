@@ -31,7 +31,7 @@ const mainNavItems = computed<NavItem[]>(() => [
         href: dashboardUrl.value,
         icon: LayoutGrid,
     },
-        {
+    {
         title: 'Offerteaanvragen',
         href: page.props.currentTeam
             ? `/${page.props.currentTeam.slug}/quote-requests`

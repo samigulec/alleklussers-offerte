@@ -53,7 +53,9 @@ function toCents(price: string): number {
         return -1;
     }
 
-    const normalized = price.includes(',') ? price.replace(/\./g, '').replace(',', '.') : price;
+    const normalized = price.includes(',')
+        ? price.replace(/\./g, '').replace(',', '.')
+        : price;
     const value = Number(normalized);
 
     return Number.isFinite(value) ? Math.round(value * 100) : -1;
@@ -62,7 +64,9 @@ function toCents(price: string): number {
 const form = useForm({
     valid_until: props.quote?.valid_until ?? '',
     notes: props.quote?.notes ?? '',
-    items: props.quote?.items.length ? props.quote.items.map(toRow) : [emptyRow()],
+    items: props.quote?.items.length
+        ? props.quote.items.map(toRow)
+        : [emptyRow()],
 });
 
 function addItem() {
@@ -77,14 +81,18 @@ function itemError(index: number, field: string): string | undefined {
     return (form.errors as Record<string, string>)[`items.${index}.${field}`];
 }
 
-const money = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' });
+const money = new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+});
 
 const totals = computed(() => {
     let subtotal = 0;
     let vat = 0;
 
     for (const item of form.items) {
-        const lineTotal = Math.max(toCents(item.price), 0) * Number(item.quantity);
+        const lineTotal =
+            Math.max(toCents(item.price), 0) * Number(item.quantity);
         subtotal += lineTotal;
         vat += Math.round((lineTotal * item.vat_rate) / 100);
     }
@@ -93,21 +101,19 @@ const totals = computed(() => {
 });
 
 function submit() {
-    form
-        .transform((data) => ({
-            valid_until: data.valid_until || null,
-            notes: data.notes || null,
-            items: data.items.map((item) => ({
-                description: item.description,
-                quantity: Number(item.quantity),
-                unit_price: toCents(item.price),
-                vat_rate: Number(item.vat_rate),
-            })),
-        }))
-        .put(props.action, {
-            preserveScroll: true,
-            onSuccess: () => emit('saved'),
-        });
+    form.transform((data) => ({
+        valid_until: data.valid_until || null,
+        notes: data.notes || null,
+        items: data.items.map((item) => ({
+            description: item.description,
+            quantity: Number(item.quantity),
+            unit_price: toCents(item.price),
+            vat_rate: Number(item.vat_rate),
+        })),
+    })).put(props.action, {
+        preserveScroll: true,
+        onSuccess: () => emit('saved'),
+    });
 }
 </script>
 
@@ -120,7 +126,10 @@ function submit() {
                 class="grid grid-cols-[1fr_5rem_7rem_5rem_auto] items-start gap-2"
             >
                 <div>
-                    <Input v-model="item.description" placeholder="Omschrijving" />
+                    <Input
+                        v-model="item.description"
+                        placeholder="Omschrijving"
+                    />
                     <InputError :message="itemError(index, 'description')" />
                 </div>
                 <div>
@@ -128,7 +137,11 @@ function submit() {
                     <InputError :message="itemError(index, 'quantity')" />
                 </div>
                 <div>
-                    <Input v-model="item.price" placeholder="0,00" inputmode="decimal" />
+                    <Input
+                        v-model="item.price"
+                        placeholder="0,00"
+                        inputmode="decimal"
+                    />
                     <InputError :message="itemError(index, 'unit_price')" />
                 </div>
                 <select
@@ -151,27 +164,39 @@ function submit() {
             </div>
             <InputError :message="form.errors.items" />
 
-            <Button type="button" variant="outline" class="self-start" @click="addItem">
+            <Button
+                type="button"
+                variant="outline"
+                class="self-start"
+                @click="addItem"
+            >
                 + Regel toevoegen
             </Button>
         </div>
 
         <div class="ml-auto w-64 space-y-1 text-sm">
             <div class="flex justify-between text-muted-foreground">
-                <span>Subtotaal</span><span>{{ money.format(totals.subtotal / 100) }}</span>
+                <span>Subtotaal</span
+                ><span>{{ money.format(totals.subtotal / 100) }}</span>
             </div>
             <div class="flex justify-between text-muted-foreground">
-                <span>BTW</span><span>{{ money.format(totals.vat / 100) }}</span>
+                <span>BTW</span
+                ><span>{{ money.format(totals.vat / 100) }}</span>
             </div>
             <div class="flex justify-between text-base font-semibold">
-                <span>Totaal</span><span>{{ money.format(totals.total / 100) }}</span>
+                <span>Totaal</span
+                ><span>{{ money.format(totals.total / 100) }}</span>
             </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <div class="grid gap-2">
                 <Label for="valid_until">Geldig tot</Label>
-                <Input id="valid_until" v-model="form.valid_until" type="date" />
+                <Input
+                    id="valid_until"
+                    v-model="form.valid_until"
+                    type="date"
+                />
                 <InputError :message="form.errors.valid_until" />
             </div>
             <div class="grid gap-2 sm:col-span-2">
@@ -187,8 +212,12 @@ function submit() {
         </div>
 
         <div class="flex gap-2">
-            <Button type="submit" :disabled="form.processing">Offerte opslaan</Button>
-            <Button type="button" variant="ghost" @click="emit('cancel')">Annuleren</Button>
+            <Button type="submit" :disabled="form.processing"
+                >Offerte opslaan</Button
+            >
+            <Button type="button" variant="ghost" @click="emit('cancel')"
+                >Annuleren</Button
+            >
         </div>
     </form>
 </template>

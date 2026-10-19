@@ -5,6 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $quote_id
+ * @property string $description
+ * @property int $quantity
+ * @property int $unit_price
+ * @property int $vat_rate
+ * @property-read Quote $quote
+ */
 class QuoteItem extends Model
 {
     protected $fillable = [
@@ -14,6 +23,9 @@ class QuoteItem extends Model
         'vat_rate',
     ];
 
+    /**
+     * @return BelongsTo<Quote, $this>
+     */
     public function quote(): BelongsTo
     {
         return $this->belongsTo(Quote::class);

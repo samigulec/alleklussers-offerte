@@ -22,7 +22,9 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Offerteaanvragen',
-                href: props.currentTeam ? `/${props.currentTeam.slug}/quote-requests` : '/',
+                href: props.currentTeam
+                    ? `/${props.currentTeam.slug}/quote-requests`
+                    : '/',
             },
         ],
     }),
@@ -71,7 +73,9 @@ function formatDate(date: string): string {
                         :key="item.id"
                         class="border-b last:border-0"
                     >
-                        <td class="px-4 py-3 text-muted-foreground">{{ formatDate(item.created_at) }}</td>
+                        <td class="px-4 py-3 text-muted-foreground">
+                            {{ formatDate(item.created_at) }}
+                        </td>
                         <td class="px-4 py-3 font-medium">
                             <Link
                                 :href="`/${page.props.currentTeam?.slug}/quote-requests/${item.id}`"
@@ -83,7 +87,9 @@ function formatDate(date: string): string {
                         <td class="px-4 py-3">{{ item.city }}</td>
                         <td class="px-4 py-3">{{ item.service }}</td>
                         <td class="px-4 py-3">
-                            <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                            <span
+                                class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium"
+                            >
                                 {{ statusLabels[item.status] ?? item.status }}
                             </span>
                         </td>
