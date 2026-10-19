@@ -20,10 +20,21 @@ class QuoteRequestController extends Controller
         ]);
     }
 
-    public function show(string $currentTeam, QuoteRequest $quoteRequest): Response
+       public function show(string $currentTeam, QuoteRequest $quoteRequest): Response
     {
+        $quote = $quoteRequest->quote()->with('items')->first();
+
         return Inertia::render('admin/quote-requests/Show', [
             'quoteRequest' => $quoteRequest,
+            'quote' => $quote ? [
+                'id' => $quote->id,
+                'valid_until' => $quote->valid_until?->toDateString(),
+                'notes' => $quote->notes,
+                'items' => $quote->items,
+                'subtotal' => $quote->subtotal(),
+                'vat_amount' => $quote->vatAmount(),
+                'total' => $quote->total(),
+            ] : null,
         ]);
     }
 
