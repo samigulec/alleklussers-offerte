@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class QuoteRequest extends Model
 {
@@ -16,4 +17,9 @@ class QuoteRequest extends Model
         'service',
         'description',
      ];
+
+    public function quote(): HasOne
+    {
+        return $this->hasOne(Quote::class);
+    }
 }
