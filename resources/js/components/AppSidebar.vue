@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import { BookOpen, FileText, FolderGit2, LayoutGrid } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -31,12 +31,19 @@ const mainNavItems = computed<NavItem[]>(() => [
         href: dashboardUrl.value,
         icon: LayoutGrid,
     },
+        {
+        title: 'Offerteaanvragen',
+        href: page.props.currentTeam
+            ? `/${page.props.currentTeam.slug}/quote-requests`
+            : '/',
+        icon: FileText,
+    },
 ]);
 
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        href: 'https://github.com/samigulec/alleklussers-offerte',
         icon: FolderGit2,
     },
     {
