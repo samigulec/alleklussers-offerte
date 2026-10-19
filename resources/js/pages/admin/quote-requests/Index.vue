@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import type { Team } from '@/types';
 
 type QuoteRequest = {
@@ -10,6 +10,8 @@ type QuoteRequest = {
     status: string;
     created_at: string;
 };
+
+const page = usePage();
 
 defineProps<{
     quoteRequests: QuoteRequest[];
@@ -70,7 +72,14 @@ function formatDate(date: string): string {
                         class="border-b last:border-0"
                     >
                         <td class="px-4 py-3 text-muted-foreground">{{ formatDate(item.created_at) }}</td>
-                        <td class="px-4 py-3 font-medium">{{ item.name }}</td>
+                        <td class="px-4 py-3 font-medium">
+                            <Link
+                                :href="`/${page.props.currentTeam?.slug}/quote-requests/${item.id}`"
+                                class="hover:underline"
+                            >
+                                {{ item.name }}
+                            </Link>
+                        </td>
                         <td class="px-4 py-3">{{ item.city }}</td>
                         <td class="px-4 py-3">{{ item.service }}</td>
                         <td class="px-4 py-3">

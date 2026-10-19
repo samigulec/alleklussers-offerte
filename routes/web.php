@@ -16,6 +16,8 @@ Route::prefix('{current_team}')
     ->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
                 Route::get('quote-requests', [AdminQuoteRequestController::class, 'index'])->name('admin.quote-requests.index');
+                Route::get('quote-requests/{quoteRequest}', [AdminQuoteRequestController::class, 'show'])->name('admin.quote-requests.show');
+                Route::patch('quote-requests/{quoteRequest}/status', [AdminQuoteRequestController::class, 'updateStatus'])->name('admin.quote-requests.update-status');
     });
 
 Route::middleware(['auth'])->group(function () {
