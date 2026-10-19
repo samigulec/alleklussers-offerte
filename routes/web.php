@@ -1,11 +1,14 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\QuoteRequestController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'Welcome')->name('home');
+Route::get('/offerte', [QuoteRequestController::class, 'create'])->name('quote-requests.create');
+Route::post('/offerte', [QuoteRequestController::class, 'store'])->name('quote-requests.store');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
