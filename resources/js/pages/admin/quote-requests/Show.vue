@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import InputError from '@/components/InputError.vue';
+import QuoteForm from '@/components/QuoteForm.vue';
 import { Button } from '@/components/ui/button';
 import type { Team } from '@/types';
 
@@ -59,6 +60,7 @@ defineOptions({
 
 const page = usePage();
 const listUrl = computed(() => `/${page.props.currentTeam?.slug}/quote-requests`);
+const editing = ref(false);
 
 const statusOptions = [
     { value: 'new', label: 'Nieuw' },
@@ -133,47 +135,67 @@ function formatDate(date: string): string {
         </div>
 
         <div class="rounded-xl border p-6">
-            <div class="flex items-baseline justify-between">
+            <div class="flex items-center justify-between">
                 <h2 class="text-lg font-semibold">Offerte</h2>
-                <p v-if="quote?.valid_until" class="text-sm text-muted-foreground">
-                    Geldig tot {{ formatDate(quote.valid_until) }}
-                </p>
+                <Button v-if="!editing" variant="outline" size="sm" @click="editing = true">
+                    {{ quote ? 'Bewerken' : 'Offerte maken' }}
+                </Button>
             </div>
 
-            <p v-if="!quote" class="mt-2 text-muted-foreground">Er is nog geen offerte gemaakt.</p>
+            <QuoteForm
+                v-if="editing"
+                :action="`${listUrl}/${quoteRequest.id}/quote`"
+                :quote="quote"
+                @saved="editing = false"
+                @cancel="editing = false"
+            />
 
-            <table v-else class="mt-4 w-full text-sm">
-                <thead class="border-b text-left text-muted-foreground">
-                    <tr>
-                        <th class="py-2 font-medium">Omschrijving</th>
-                        <th class="py-2 text-right font-medium">Aantal</th>
-                        <th class="py-2 text-right font-medium">Prijs</th>
-                        <th class="py-2 text-right font-medium">Totaal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in quote.items" :key="item.id" class="border-b">
-                        <td class="py-2">{{ item.description }}</td>
-                        <td class="py-2 text-right">{{ item.quantity }}</td>
-                        <td class="py-2 text-right">{{ formatMoney(item.unit_price) }}</td>
-                        <td class="py-2 text-right">{{ formatMoney(item.quantity * item.unit_price) }}</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3" class="pt-3 text-right text-muted-foreground">Subtotaal</td>
-                        <td class="pt-3 text-right">{{ formatMoney(quote.subtotal) }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" class="py-1 text-right text-muted-foreground">BTW</td>
-                        <td class="py-1 text-right">{{ formatMoney(quote.vat_amount) }}</td>
-                    </tr>
-                    <tr class="text-base font-semibold">
-                        <td colspan="3" class="pt-2 text-right">Totaal</td>
-                        <td class="pt-2 text-right">{{ formatMoney(quote.total) }}</td>
-                    </tr>
-                </tfoot>
-            </table>
+            <template v-else>
+                <p v-if="!quote" class="mt-2 text-muted-foreground">Er is nog geen offerte gemaakt.</p>
+
+                <template v-else>
+                    <p v-if="quote.valid_until" class="mt-1 text-sm text-muted-foreground">
+                        Geldig tot {{ formatDate(quote.valid_until) }}
+                    </p>
+
+                    <table class="mt-4 w-full text-sm">
+                        <thead class="border-b text-left text-muted-foreground">
+                            <tr>
+                                <th class="py-2 font-medium">Omschrijving</th>
+                                <th class="py-2 text-right font-medium">Aantal</th>
+                                <th class="py-2 text-right font-medium">Prijs</th>
+                                <th class="py-2 text-right font-medium">Totaal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in quote.items" :key="item.id" class="border-b">
+                                <td class="py-2">{{ item.description }}</td>
+                                <td class="py-2 text-right">{{ item.quantity }}</td>
+                                <td class="py-2 text-right">{{ formatMoney(item.unit_price) }}</td>
+                                <td class="py-2 text-right">{{ formatMoney(item.quantity * item.unit_price) }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="pt-3 text-right text-muted-foreground">Subtotaal</td>
+                                <td class="pt-3 text-right">{{ formatMoney(quote.subtotal) }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="py-1 text-right text-muted-foreground">BTW</td>
+                                <td class="py-1 text-right">{{ formatMoney(quote.vat_amount) }}</td>
+                            </tr>
+                            <tr class="text-base font-semibold">
+                                <td colspan="3" class="pt-2 text-right">Totaal</td>
+                                <td class="pt-2 text-right">{{ formatMoney(quote.total) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <p v-if="quote.notes" class="mt-4 whitespace-pre-line text-sm text-muted-foreground">
+                        {{ quote.notes }}
+                    </p>
+                </template>
+            </template>
         </div>
 
         <form class="flex flex-col gap-3 rounded-xl border p-6" @submit.prevent="updateStatus">

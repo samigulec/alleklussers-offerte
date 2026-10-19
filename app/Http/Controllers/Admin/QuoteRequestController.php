@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\QuoteRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +21,7 @@ class QuoteRequestController extends Controller
         ]);
     }
 
-       public function show(string $currentTeam, QuoteRequest $quoteRequest): Response
+    public function show(string $currentTeam, QuoteRequest $quoteRequest): Response
     {
         $quote = $quoteRequest->quote()->with('items')->first();
 
@@ -48,6 +49,33 @@ class QuoteRequestController extends Controller
         $quoteRequest->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Status bijgewerkt.']);
+
+        return back();
+    }
+
+    public function saveQuote(Request $request, string $currentTeam, QuoteRequest $quoteRequest): RedirectResponse
+    {
+        $validated = $request->validate([
+            'valid_until' => ['nullable', 'date'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.description' => ['required', 'string', 'max:255'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.unit_price' => ['required', 'integer', 'min:0'],
+            'items.*.vat_rate' => ['required', Rule::in([0, 9, 21])],
+        ]);
+
+        DB::transaction(function () use ($quoteRequest, $validated) {
+            $quote = $quoteRequest->quote()->updateOrCreate([], [
+                'valid_until' => $validated['valid_until'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            $quote->items()->delete();
+            $quote->items()->createMany($validated['items']);
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Offerte opgeslagen.']);
 
         return back();
     }
