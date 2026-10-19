@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\QuoteRequestController as AdminQuoteRequestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\QuoteRequestController;
 use App\Http\Controllers\Teams\TeamInvitationController;
@@ -14,6 +15,7 @@ Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])
     ->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
+                Route::get('quote-requests', [AdminQuoteRequestController::class, 'index'])->name('admin.quote-requests.index');
     });
 
 Route::middleware(['auth'])->group(function () {
