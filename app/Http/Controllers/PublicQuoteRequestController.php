@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class QuoteRequestController extends Controller
+class PublicQuoteRequestController extends Controller
 {
     public function create(): Response
     {
