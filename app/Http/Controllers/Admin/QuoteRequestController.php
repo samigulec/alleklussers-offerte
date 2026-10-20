@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\QuoteSent;
 use App\Models\QuoteRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -31,6 +33,8 @@ class QuoteRequestController extends Controller
                 'id' => $quote->id,
                 'valid_until' => $quote->valid_until?->toDateString(),
                 'notes' => $quote->notes,
+                'sent_at' => $quote->sent_at?->toIso8601String(),
+                'accepted_at' => $quote->accepted_at?->toIso8601String(),
                 'items' => $quote->items,
                 'subtotal' => $quote->subtotal(),
                 'vat_amount' => $quote->vatAmount(),
@@ -76,6 +80,25 @@ class QuoteRequestController extends Controller
         });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Offerte opgeslagen.']);
+
+        return back();
+    }
+
+    public function sendQuote(string $currentTeam, QuoteRequest $quoteRequest): RedirectResponse
+    {
+        $quote = $quoteRequest->quote()->with('items')->firstOrFail();
+
+        Mail::to($quoteRequest->email)->send(new QuoteSent($quote));
+
+        $quote->sent_at = now();
+        $quote->save();
+
+        if ($quoteRequest->status === 'new') {
+            $quoteRequest->status = 'quoted';
+            $quoteRequest->save();
+        }
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Offerte verstuurd naar {$quoteRequest->email}."]);
 
         return back();
     }

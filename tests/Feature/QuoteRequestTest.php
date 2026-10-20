@@ -1,8 +1,10 @@
 <?php
 
+use App\Mail\QuoteSent;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 function validQuoteRequestData(array $overrides = []): array
@@ -109,4 +111,19 @@ test('an expired quote cannot be accepted', function () {
         ->assertForbidden();
 
     expect($quote->fresh()->accepted_at)->toBeNull();
+});
+
+test('an admin can send a quote by email', function () {
+    Mail::fake();
+    $user = User::factory()->create();
+    $quote = quoteWithItems();
+
+    $this->actingAs($user)
+        ->post("/{$user->currentTeam->slug}/quote-requests/{$quote->quote_request_id}/send")
+        ->assertRedirect();
+
+    Mail::assertSent(QuoteSent::class, fn (QuoteSent $mail) => $mail->hasTo('jan@example.com'));
+
+    expect($quote->fresh()->sent_at)->not->toBeNull()
+        ->and($quote->quoteRequest->fresh()->status)->toBe('quoted');
 });
