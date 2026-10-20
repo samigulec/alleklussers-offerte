@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\QuoteRequestController as AdminQuoteRequestController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\QuoteRequestController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
@@ -11,6 +12,8 @@ Route::inertia('/', 'Welcome')->name('home');
 
 Route::get('/offerte', [QuoteRequestController::class, 'create'])->name('quote-requests.create');
 Route::post('/offerte', [QuoteRequestController::class, 'store'])->name('quote-requests.store');
+Route::get('/offerte/{quote}', [QuoteController::class, 'show'])->middleware('signed')->name('quotes.show');
+Route::post('/offerte/{quote}/akkoord', [QuoteController::class, 'accept'])->middleware('signed')->name('quotes.accept');
 
 Route::prefix('{current_team}')
     ->middleware(['auth', 'verified', EnsureTeamMembership::class])

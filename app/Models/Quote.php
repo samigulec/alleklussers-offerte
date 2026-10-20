@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $quote_request_id
- * @property Carbon|null $valid_until
+ * @property CarbonInterface|null $valid_until
  * @property string|null $notes
+ * @property CarbonInterface|null $sent_at
+ * @property CarbonInterface|null $accepted_at
  * @property-read QuoteRequest $quoteRequest
  * @property-read Collection<int, QuoteItem> $items
  */
@@ -30,6 +32,8 @@ class Quote extends Model
     {
         return [
             'valid_until' => 'date',
+            'sent_at' => 'datetime',
+            'accepted_at' => 'datetime',
         ];
     }
 
@@ -62,5 +66,10 @@ class Quote extends Model
     public function total(): int
     {
         return $this->subtotal() + $this->vatAmount();
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->valid_until !== null && $this->valid_until->endOfDay()->isPast();
     }
 }

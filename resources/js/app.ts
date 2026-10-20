@@ -14,6 +14,7 @@ void createInertiaApp({
             case name === 'Welcome':
                 return null;
             case name === 'quote-requests/Create':
+            case name.startsWith('quotes/'):
                 return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
