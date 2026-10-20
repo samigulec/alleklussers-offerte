@@ -4,6 +4,7 @@ use App\Mail\QuoteSent;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Models\User;
+use Database\Seeders\DemoSeeder;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
@@ -126,4 +127,11 @@ test('an admin can send a quote by email', function () {
 
     expect($quote->fresh()->sent_at)->not->toBeNull()
         ->and($quote->quoteRequest->fresh()->status)->toBe('quoted');
+});
+
+test('the demo seeder creates realistic demo data', function () {
+    $this->seed(DemoSeeder::class);
+
+    expect(QuoteRequest::count())->toBe(6)
+        ->and(Quote::whereNotNull('accepted_at')->count())->toBe(2);
 });
